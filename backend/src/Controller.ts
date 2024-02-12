@@ -1,4 +1,5 @@
 import {Server} from "socket.io";
+import {serverLogger} from "./util/Logger";
 
 export default class Controller {
 
@@ -11,11 +12,7 @@ export default class Controller {
     }
 
     private onConnect(): void {
-        console.log("on connect triggered");
-    }
-
-    onServerClose(): void {
-        console.log("socket closed unexpectedly");
+        serverLogger.debug("on connect triggered");
     }
 
 }

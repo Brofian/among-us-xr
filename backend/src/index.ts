@@ -23,4 +23,3 @@ const io = new Server(server, {
 
 const controller = new Controller(io);
 io.listen(BACKEND_PORT);
-controller.onServerClose();
