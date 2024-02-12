@@ -1,4 +1,4 @@
-import {EVENT_LIST, EventSubscriber} from "@amongusxr/types/src/EventSystem";
+import {EVENT_LIST, EventHandler, EventSubscriber} from "@amongusxr/types/src/EventSystem";
 
 class EventManager {
 
@@ -14,11 +14,18 @@ class EventManager {
 
     private listeners: EventSubscriber<keyof EVENT_LIST>[] = [];
 
-    on<E extends keyof EVENT_LIST>(event: E, listener: {(event: EVENT_LIST[E]): void}): void {
+    on<E extends keyof EVENT_LIST>(event: E, handler: EventHandler<E>): void {
         this.listeners.push({
             event: event,
-            handler: listener
-        });
+            handler: handler
+        } as EventSubscriber<keyof EVENT_LIST>);
+    }
+
+    removeListener<E extends keyof EVENT_LIST>(event: E, handler: EventHandler<E>): void {
+        const listenerIndex = this.listeners.findIndex(l => l.event === event && l.handler === handler);
+        if (listenerIndex !== -1) {
+            this.listeners.splice(listenerIndex,1);
+        }
     }
 
     emit<E extends keyof EVENT_LIST>(event: E, data: EVENT_LIST[E]): void {

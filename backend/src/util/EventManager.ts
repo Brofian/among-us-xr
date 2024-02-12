@@ -4,12 +4,12 @@ class EventManager {
 
     private constructor() {}
 
-    static instance: EventManager;
+    private static instance: EventManager;
     static getInstance(): EventManager {
-        if (!this.instance) {
-            this.instance = new EventManager();
+        if (!EventManager.instance) {
+            EventManager.instance = new EventManager();
         }
-        return this.instance;
+        return EventManager.instance;
     }
 
     private listeners: EventSubscriber<keyof EVENT_LIST>[] = [];
@@ -18,7 +18,7 @@ class EventManager {
         this.listeners.push({
             event: event,
             handler: listener
-        });
+        } as EventSubscriber<keyof EVENT_LIST>);
     }
 
     emit<E extends keyof EVENT_LIST>(event: E, data: EVENT_LIST[E]): void {

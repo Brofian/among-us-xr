@@ -2,25 +2,28 @@ import { io, Socket } from 'socket.io-client';
 import clientConfiguration from "./ClientConfiguration";
 import {clientLogger} from "./Logger";
 import eventManager from "./EventManager";
+import {C2S_EVENT_LIST, C2SPackage} from "@amongusxr/types/src/Events/C2SPackages";
+import {S2C_EVENT_LIST, S2CPackage} from "@amongusxr/types/src/Events/S2CPackages";
+
+const PACKAGE_EVENT_KEY = 'package';
 
 class SocketManager {
 
     protected readonly socket: Socket;
 
     private constructor() {
+        const APP_ENDPOINT = `${clientConfiguration.API_APP_DOMAIN}:${clientConfiguration.API_HTTP_PORT}`;
+
         clientLogger.debug(
             'Starting connection using environment variables. ',
-            `Resulting in ${clientConfiguration.API_APP_DOMAIN}:${clientConfiguration.API_HTTP_PORT}`
+            `Resulting in ${APP_ENDPOINT}`
         );
-
-        this.socket = io(clientConfiguration.API_APP_DOMAIN + ':' + clientConfiguration.API_HTTP_PORT);
+        this.socket = io(APP_ENDPOINT);
         this.socket.on('connect', this.onConnectionStatusChanged.bind(this, true));
         this.socket.on('disconnect', this.onDisconnected.bind(this));
-        this.socket.on(
-            'connect_error',
-            this.onConnectionStatusChanged.bind(this, false)
-        );
+        this.socket.on('connect_error',this.onConnectionStatusChanged.bind(this, false));
         this.socket.io.on('reconnect', this.onReconnected.bind(this));
+        this.socket.on(PACKAGE_EVENT_KEY, this.onSocketPackageReceived.bind(this))
     }
 
     private static instance: SocketManager;
@@ -54,14 +57,30 @@ class SocketManager {
         return this.socket;
     }
 
-    public sendEvent(eventName: string, data: object): void {
-        clientLogger.debug(`Sending event ${eventName}`);
-        this.socket.emit(eventName, data);
+
+    /**
+     * Redirect S2C Events to the general event manager
+     *
+     * @param eventPackage
+     * @private
+     */
+    private onSocketPackageReceived(eventPackage: S2CPackage<keyof S2C_EVENT_LIST>): void {
+        const {event, eventData} = eventPackage;
+        eventManager.emit(event, eventData);
     }
 
-    public subscribeEvent(eventName: string, listener: {(): void}): void {
-        clientLogger.debug(`Subscribing event ${eventName} with `, listener);
-        this.socket.on(eventName, listener);
+    /**
+     * Wrap C2S Events into a package and send it to the server
+     *
+     * @param event
+     * @param data
+     */
+    public sendEvent<E extends keyof C2S_EVENT_LIST>(event: E, data: C2S_EVENT_LIST[E]): void {
+        clientLogger.debug(`Sending event package ${event}`);
+        this.socket.emit(PACKAGE_EVENT_KEY, {
+            event: event,
+            eventData: data
+        } as C2SPackage<E>);
     }
 }
 
