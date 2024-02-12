@@ -2,10 +2,9 @@ import {EVENT_LIST, EventSubscriber} from "@amongusxr/types/src/EventSystem";
 
 class EventManager {
 
-    static instance: EventManager;
-
     private constructor() {}
 
+    static instance: EventManager;
     static getInstance(): EventManager {
         if (!this.instance) {
             this.instance = new EventManager();

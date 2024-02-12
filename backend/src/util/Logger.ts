@@ -16,7 +16,7 @@ export class Logger {
 	private initializeLogger(): void {
 		if (!this.loggerInitialized) {
 			// @ts-ignore
-			Logger.LOG_LEVEL = serverConfiguration.LOG_LEVEL || 2;
+			Logger.LOG_LEVEL = serverConfiguration.LOG_LEVEL !== undefined ? serverConfiguration.LOG_LEVEL : 2;
 			this.loggerInitialized = true;
 		}
 	}

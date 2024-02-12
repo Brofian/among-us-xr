@@ -1,5 +1,9 @@
-import {Server} from "socket.io";
+import {Server, Socket} from "socket.io";
 import {serverLogger} from "./util/Logger";
+import {DefaultEventsMap} from "socket.io/dist/typed-events";
+import User from "./user/User";
+import UserManager from "./user/UserManager";
+import userManager from "./user/UserManager";
 
 export default class Controller {
 
@@ -11,8 +15,9 @@ export default class Controller {
         io.on('connection', this.onConnect.bind(this));
     }
 
-    private onConnect(): void {
-        serverLogger.debug("on connect triggered");
+    private onConnect(socket: Socket<DefaultEventsMap, DefaultEventsMap>): void {
+        const user = new User(socket);
+        userManager.addUser(user);
     }
 
 }

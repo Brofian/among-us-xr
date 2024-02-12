@@ -7,7 +7,6 @@ class SocketManager {
 
     protected readonly socket: Socket;
 
-    private static instance: SocketManager;
     private constructor() {
         clientLogger.debug(
             'Starting connection using environment variables. ',
@@ -24,6 +23,7 @@ class SocketManager {
         this.socket.io.on('reconnect', this.onReconnected.bind(this));
     }
 
+    private static instance: SocketManager;
     static getInstance(): SocketManager {
         if (!this.instance) {
             this.instance = new SocketManager();
