@@ -9,11 +9,11 @@ export type EVENT_LIST =
     C2S_EVENT_LIST &
     S2C_EVENT_LIST;
 
-export type EventHandler<K extends keyof EVENT_LIST> = {(event: EVENT_LIST[K]): void};
+export type EventHandler<E extends keyof EVENT_LIST> = {(event: EVENT_LIST[E]): void};
 
-export type EventSubscriber<K extends keyof EVENT_LIST> = {
-    event: K,
-    handler: EventHandler<K>;
+export type EventSubscriber<E extends keyof EVENT_LIST> = {
+    event: E,
+    handler: EventHandler<E>;
 }
 
 export type Event = {}
