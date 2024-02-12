@@ -21,12 +21,18 @@ class UserManager {
         const socket = user.getSocket();
         socket.on('disconnect', this.onDisconnectUser.bind(this, user));
         socket.on(PACKAGE_EVENT_KEY, socketManager.onSocketPackageReceived.bind(this,socket));
-
-        this.users.push(user);
+        if (!this.users.includes(user)) {
+            this.users.push(user);
+        }
         serverLogger.debug(`User ${user.getIdentifier().slice(0,8)} connected (${this.users.length} Players connected)`);
     }
 
     private onDisconnectUser(user: User): void {
+        if (!user.hasInactiveRole() ) {
+            // leave the user as a zombie without a connected socket
+            return;
+        }
+
         const userIndex: number = this.users.indexOf(user);
         if (userIndex !== -1) {
             this.users.splice(userIndex,1);
@@ -36,6 +42,9 @@ class UserManager {
 
     getUserBySocket(socket: Socket): User|undefined {
         return this.users.find(user => user.getSocket() === socket);
+    }
+    getUserById(userId: string): User|undefined {
+        return this.users.find(user => user.getIdentifier() === userId);
     }
 }
 

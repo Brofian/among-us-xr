@@ -18,7 +18,11 @@ class SocketManager {
             'Starting connection using environment variables. ',
             `Resulting in ${APP_ENDPOINT}`
         );
-        this.socket = io(APP_ENDPOINT);
+        this.socket = io(APP_ENDPOINT, {
+            query: {
+                userId: 'this-should-be-my-user-id'
+            }
+        });
         this.socket.on('connect', this.onConnectionStatusChanged.bind(this, true));
         this.socket.on('disconnect', this.onDisconnected.bind(this));
         this.socket.on('connect_error',this.onConnectionStatusChanged.bind(this, false));
@@ -66,6 +70,7 @@ class SocketManager {
      */
     private onSocketPackageReceived(eventPackage: S2CPackage<keyof S2C_EVENT_LIST>): void {
         const {event, eventData} = eventPackage;
+        clientLogger.debug(`Received event package ${event}`);
         eventManager.emit(event, eventData);
     }
 

@@ -40,7 +40,7 @@ class SocketManager {
     }
 
     sendSocketEvent<E extends keyof S2C_EVENT_LIST>(socket: Socket, event: E, data: S2C_EVENT_LIST[E]): void {
-        socket.send(PACKAGE_EVENT_KEY, this.wrapEventInPackage(event, data));
+        socket.emit(PACKAGE_EVENT_KEY, this.wrapEventInPackage(event, data));
     }
 
     sendBroadcastEvent<E extends keyof S2C_EVENT_LIST>(event: E, data: S2C_EVENT_LIST[E]): void {
