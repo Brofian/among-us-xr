@@ -3,6 +3,9 @@ import {DefaultEventsMap} from "socket.io/dist/typed-events";
 import User from "./user/User";
 import userManager from "./user/UserManager";
 import socketManager from "./util/SocketManager";
+import {SocketConnectionQuery} from "@amongusxr/types/src/System";
+import {serverLogger} from "./util/Logger";
+import roomManager from "./room/RoomManager";
 
 export default class Controller {
 
@@ -11,6 +14,7 @@ export default class Controller {
     constructor(io: Server) {
         Controller.io = io;
         this.registerIOEvents();
+        const rm = roomManager;
     }
 
     private registerIOEvents(): void {
@@ -21,15 +25,19 @@ export default class Controller {
         // cleanup socket to be sure
         socket.removeAllListeners();
 
-        const userId = socket.handshake.query.userId;
+        const query = socket.handshake.query as SocketConnectionQuery;
+        const userId = query.userId;
 
         let user = undefined;
         if (userId && typeof userId === 'string') {
             // search for user by id
             user = userManager.getUserById(userId);
-            if (user) {
+            if (user && user.resurrect(socket)) {
                 // try resurrecting user by applying the new socket
-                user.resurrect(socket);
+                serverLogger.debug(`User ${user.getShortIdentifier()} was resurrected`);
+            }
+            else {
+                user = undefined;
             }
         }
 

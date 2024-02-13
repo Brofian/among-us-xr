@@ -17,3 +17,27 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+* {
+  box-sizing: border-box;
+}
+
+.App {
+  width: 100vw;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+
+  /**
+   * Screens
+   */
+  @import "views/Screens/Login/LoginScreen";
+  @import "views/Screens/Queue/QueueScreen";
+
+  /**
+   * Components
+   */
+  @import "views/Components/ConnectionNotification";
+}

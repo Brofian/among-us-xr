@@ -18,7 +18,7 @@ class EventManager {
         this.listeners.push({
             event: event,
             handler: listener
-        } as EventSubscriber<keyof EVENT_LIST>);
+        });
     }
 
     removeListener<E extends keyof EVENT_LIST>(event: E, handler: EventHandler<E>): void {

@@ -4,12 +4,18 @@ import {clientLogger} from "./Logger";
 import eventManager from "./EventManager";
 import {C2S_EVENT_LIST, C2SPackage} from "@amongusxr/types/src/Events/C2SPackages";
 import {S2C_EVENT_LIST, S2CPackage} from "@amongusxr/types/src/Events/S2CPackages";
+import userManager from "../game/UserManager";
+import {SocketConnectionQuery} from "@amongusxr/types/src/System";
 
 const PACKAGE_EVENT_KEY = 'package';
 
 class SocketManager {
 
-    protected readonly socket: Socket;
+    private readonly socket: Socket;
+
+    public readonly socketQuery: SocketConnectionQuery = {
+        userId: userManager.getUserId()
+    }
 
     private constructor() {
         const APP_ENDPOINT = `${clientConfiguration.API_APP_DOMAIN}:${clientConfiguration.API_HTTP_PORT}`;
@@ -18,10 +24,9 @@ class SocketManager {
             'Starting connection using environment variables. ',
             `Resulting in ${APP_ENDPOINT}`
         );
+
         this.socket = io(APP_ENDPOINT, {
-            query: {
-                userId: 'this-should-be-my-user-id'
-            }
+            query: this.socketQuery
         });
         this.socket.on('connect', this.onConnectionStatusChanged.bind(this, true));
         this.socket.on('disconnect', this.onDisconnected.bind(this));
@@ -39,7 +44,7 @@ class SocketManager {
     }
 
     protected onConnectionStatusChanged(status: boolean): void {
-        eventManager.emit('CONNECTION_STATUS_C', {
+        eventManager.emit('C_CONNECTION_STATUS', {
             connected: status
         });
         clientLogger.debug("Socket connection status changed: ", status);

@@ -1,0 +1,18 @@
+#connection-notification {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: red;
+  padding: 1rem 2rem;
+  width: 100vw;
+  max-width: 30rem;
+  text-align: center;
+  transition: top 0.2s ease-in-out;
+  max-height: 3rem;
+
+  &.hidden {
+    top: -4rem;
+  }
+
+}
