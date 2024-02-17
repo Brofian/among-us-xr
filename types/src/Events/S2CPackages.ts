@@ -1,9 +1,12 @@
 import {UserRoles} from "../User";
+import {GamePhases} from "../Game/DataTypes";
 
 export type S2C_EVENT_LIST = {
     S2C_PING: S2CPingEvent,
-    S2C_USER_UPDATED: S2CUserUpdatedEvent
-    S2C_ROOM_NOT_FOUND: S2CRoomNotFoundEvent
+    S2C_USER_UPDATED: S2CUserUpdatedEvent,
+    S2C_GAME_UPDATED: S2CGameUpdatedEvent,
+    S2C_ROOM_UPDATED: S2CRoomUpdatedEvent,
+    S2C_ROOM_NOT_FOUND: S2CRoomNotFoundEvent,
 };
 
 export type S2CPackage<T extends keyof S2C_EVENT_LIST> = {
@@ -25,4 +28,13 @@ export type S2CUserUpdatedEvent = {
     roomCode?: string;
 } & S2CEvent;
 
+
+export type S2CRoomUpdatedEvent = {
+    administratorId: string;
+} & S2CEvent;
+
 export type S2CRoomNotFoundEvent = {} & S2CEvent;
+
+export type S2CGameUpdatedEvent = {
+    gamePhase: GamePhases
+} & S2CEvent;

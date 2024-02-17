@@ -46,7 +46,7 @@ class UserManager {
         const user = this.getUserById(event.userId);
         if (!user) return;
 
-        user.leaveRoom();
+        user.setRoom(undefined);
         const userIndex: number = this.users.indexOf(user);
         if (userIndex !== -1) {
             this.users.splice(userIndex,1);

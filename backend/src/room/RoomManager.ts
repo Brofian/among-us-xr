@@ -4,10 +4,13 @@ import eventManager from "../util/EventManager";
 import {RoomClosingTriggeredEvent} from "@amongusxr/types/src/Events/ServerEvents";
 import {C2SCreateRoomEvent, C2SJoinRoomEvent} from "@amongusxr/types/src/Events/C2SPackages";
 import userManager from "../user/UserManager";
+import {serverLogger} from "../util/Logger";
+import GameEventTunnel from "./GameEventTunnel";
 
 class RoomManager {
 
-    private rooms: Room[] = [];
+    private readonly rooms: Room[] = [];
+    private readonly gameEventTunnel: GameEventTunnel = new GameEventTunnel(this.rooms);
 
     private constructor() {
         eventManager.on('S_ROOM_CLOSING_TRIGGERED', this.onCloseRoom.bind(this));
@@ -27,15 +30,29 @@ class RoomManager {
         return this.rooms.find(room => room.getCode() === code);
     }
 
+    moveUserToRoom(user: User, room: Room, username: string): void {
+        this.removeUserFromRoom(user);
+        user.setRoom(room, username);
+        room.addUser(user);
+    }
+
+    removeUserFromRoom(user: User): void {
+        const room = user.getRoom();
+        if (room) {
+            room.removeUser(user);
+            user.setRoom(undefined);
+        }
+    }
+
     onCloseRoom(event: RoomClosingTriggeredEvent): void {
         const room = this.getRoomByCode(event.roomCode);
         if (!room) {
             return;
         }
 
-        for (const user of room.getUsers()) {
-            user.leaveRoom();
-        }
+        room.forAllUsers((user: User) => {
+            this.removeUserFromRoom(user);
+        });
         const roomIndex = this.rooms.indexOf(room);
         if (roomIndex !== -1) {
             this.rooms.splice(roomIndex, 1);
@@ -51,7 +68,8 @@ class RoomManager {
             return;
         }
 
-        user.joinRoom(room, event.username);
+        this.moveUserToRoom(user, room, event.username || '[MISSING_VAL]');
+        serverLogger.debug(`User ${user.getShortIdentifier()} joined room ${room.getCode()} (${room.getNumUsers()} members)`);
     }
 
     onUserTriesCreatingRoom(event: C2SCreateRoomEvent): void {
@@ -60,9 +78,11 @@ class RoomManager {
             return;
         }
 
+        const room = new Room(administrator);
         // TODO replace placeholder with something dynamic
-        const room = new Room(administrator, 'Administrator');
+        administrator.setRoom(room, 'Administrator');
         this.rooms.push(room);
+        serverLogger.debug(`User ${administrator.getShortIdentifier()} created room ${room.getCode()}`);
     }
 
 }
