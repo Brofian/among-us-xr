@@ -9,13 +9,25 @@ export default class PlayerManager {
     private readonly gameInstance: GameInstance;
     private readonly roomCode: string;
 
+    // exclusive user groups
     private players: {[key: string]: User} = {}
     private spectators: {[key: string]: User} = {}
     private gameObjects: {[key: string]: User} = {}
+    // game specifications
+    private imposters: User[] = [];
+
 
     constructor(gameInstance: GameInstance, roomCode: string) {
         this.gameInstance = gameInstance;
         this.roomCode = roomCode;
+    }
+
+    getPlayersAsArray(): User[] {
+        const userList: User[] = [];
+        for (const userId in this.players) {
+            userList.push(this.players[userId]);
+        }
+        return userList;
     }
 
     removeUser(user: User): void {
@@ -28,6 +40,7 @@ export default class PlayerManager {
     setUserRole(user: User, role: UserRoles): void {
         this.removeUser(user);
         const userId = user.getIdentifier();
+        console.log(`setting ${userId} to role ${role}`);
         switch (role) {
             case "player":
                 this.players[userId] = user;
@@ -49,6 +62,9 @@ export default class PlayerManager {
         return 'queued';
     }
 
+    isImposter(user: User): boolean {
+        return this.imposters.includes(user);
+    }
 
     onPlayerSelectRole(user: User, event: C2SSelectRoleEvent): void {
         this.setUserRole(user, event.selectedRole);
@@ -59,5 +75,53 @@ export default class PlayerManager {
         socketManager.sendRoomEvent(this.roomCode, 'S2C_GAME_UPDATED', {
             gamePhase: this.gameInstance.getPhase()
         });
+    }
+
+    sendPlayerGameUpdates(sendUniversalData: boolean = false): void {
+        for (const user of this.getPlayersAsArray()) {
+            const isImposter = this.isImposter(user);
+
+            // send general game data (mostly send one time at the start of the game)
+            if (sendUniversalData) {
+                socketManager.sendSocketEvent(user.getSocket(), 'S2C_UNIVERSAL_PLAYER_GAME_UPDATE', {
+                    job: isImposter ? 'imposter' : 'crewmate'
+                });
+            }
+
+            if (isImposter) {
+                // send imposter data
+                socketManager.sendSocketEvent(user.getSocket(), 'S2C_IMPOSTER_GAME_UPDATE', {
+                    killTimeout: 10, // TODO make configurable
+                    hazards: [],
+                    doors: [],
+                });
+            }
+            else {
+                // send crewmate data
+                socketManager.sendSocketEvent(user.getSocket(), 'S2C_CREWMATE_GAME_UPDATE', {
+                    tasks: []
+                });
+            }
+
+        }
+    }
+
+    selectImposters(numImposters: number): void {
+        const players = this.getPlayersAsArray();
+        const maxImposters = Math.floor(players.length / 2);
+        let imposterSpotsRemaining = Math.min(numImposters, maxImposters);
+        this.imposters = [];
+        do {
+            const nextImposter = players[Math.floor(Math.random() * players.length)];
+            if (!this.imposters.includes(nextImposter)) {
+                this.imposters.push(nextImposter);
+                imposterSpotsRemaining--;
+            }
+        }
+        while (imposterSpotsRemaining > 0);
+    }
+
+    getImposters(): User[] {
+        return this.imposters;
     }
 }

@@ -1,35 +1,37 @@
-import React, {Component, ReactNode} from "react";
+import React, {ReactNode} from "react";
 import QueueScreen from "./Screens/Queue/QueueScreen";
-import eventManager from "../util/EventManager";
-import userManager from "../game/UserManager";
+import gameManager from "../game/GameManager";
 import LoginScreen from "./Screens/Login/LoginScreen";
+import SetupScreen from "./Screens/Setup/SetupScreen";
+import ReRenderingComponent from "./abstract/ReRenderingComponent";
+import {CLIENT_EVENT_LIST} from "@amongusxr/types/src/Events/ClientEvents";
+import RoomHeader from "./Components/RoomHeader";
 
-export default class Navigator extends Component<{}, {}> {
+export default class Navigator extends ReRenderingComponent<{}, {}> {
 
-    private readonly userUpdateListener = () => this.setState({});
-
-    componentDidMount() {
-        eventManager.on('S2C_USER_UPDATED', this.userUpdateListener);
-    }
-
-    componentWillUnmount() {
-        eventManager.removeListener('S2C_USER_UPDATED', this.userUpdateListener);
+    getAutoUpdateEvents(): (keyof CLIENT_EVENT_LIST)[] {
+        return ['C_USER_UPDATED', 'C_ROOM_UPDATED'];
     }
 
     render () {
+        if (!gameManager.getRoomCode()) {
+            return <LoginScreen />;
+        }
+
         return (
             <>
+                <RoomHeader />
                 {this.renderView()}
             </>
         );
     }
 
     renderView(): ReactNode {
-        if (!userManager.getRoomCode()) {
-            return <LoginScreen />;
+        if (gameManager.getUserId() && gameManager.getUserId() === gameManager.getAdministratorId()) {
+            return <SetupScreen />;
         }
 
-        const userRole = userManager.getRole();
+        const userRole = gameManager.getRole();
         if (!userRole) return undefined;
 
         switch (userRole) {

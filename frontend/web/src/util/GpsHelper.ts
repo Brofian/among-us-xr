@@ -25,7 +25,7 @@ class GpsHelper {
         return this.instance;
     }
 
-    registerLocation(): void {
+    private registerLocation(): void {
         navigator.geolocation.clearWatch(this.watchId);
         navigator.geolocation.watchPosition(
             this.onLocationChanged.bind(this),
@@ -75,6 +75,8 @@ class GpsHelper {
     private onLocationChanged(position: GeolocationPosition): void {
         this.location.latitude = position.coords.latitude;
         this.location.longitude = position.coords.longitude;
+
+        // console.log("position changed: ", position);
 
         eventManager.emit('C_GPS_LOCATION_CHANGED', {
             location: this.location

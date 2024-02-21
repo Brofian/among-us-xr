@@ -1,11 +1,12 @@
-import { io, Socket } from 'socket.io-client';
+import {io, Socket} from 'socket.io-client';
 import clientConfiguration from "./ClientConfiguration";
 import {clientLogger} from "./Logger";
 import eventManager from "./EventManager";
 import {C2S_EVENT_LIST, C2SPackage} from "@amongusxr/types/src/Events/C2SPackages";
 import {S2C_EVENT_LIST, S2CPackage} from "@amongusxr/types/src/Events/S2CPackages";
-import userManager from "../game/UserManager";
+import gameManager from "../game/GameManager";
 import {SocketConnectionQuery} from "@amongusxr/types/src/System";
+import * as fs from "fs";
 
 const PACKAGE_EVENT_KEY = 'package';
 
@@ -14,7 +15,7 @@ class SocketManager {
     private readonly socket: Socket;
 
     public readonly socketQuery: SocketConnectionQuery = {
-        userId: userManager.getUserId()
+        userId: gameManager.getUserId()
     }
 
     private constructor() {
@@ -26,8 +27,11 @@ class SocketManager {
         );
 
         this.socket = io(APP_ENDPOINT, {
-            query: this.socketQuery
+            query: this.socketQuery,
+            rejectUnauthorized: false,
+            transports: ['websocket']
         });
+
         this.socket.on('connect', this.onConnectionStatusChanged.bind(this, true));
         this.socket.on('disconnect', this.onDisconnected.bind(this));
         this.socket.on('connect_error',this.onConnectionStatusChanged.bind(this, false));

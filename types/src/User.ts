@@ -4,3 +4,9 @@ export type UserRoles =
     | 'spectator'   // user is only watching the game
     | 'player'      // user is an active player in the game
     | 'game_object';// user in a passive game object
+
+
+export type PlayerList = {
+    id: string;
+    username: string;
+}[];

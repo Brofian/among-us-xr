@@ -1,7 +1,5 @@
 import {Component} from "react";
 import {UserRoles} from "@amongusxr/types/src/User";
-import eventManager from "../../../util/EventManager";
-import userManager from "../../../game/UserManager";
 import socketManager from "../../../util/SocketManager";
 
 type RoleSelectionOption = {role: UserRoles, label: string, image: string};

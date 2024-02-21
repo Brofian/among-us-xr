@@ -32,15 +32,15 @@ class RoomManager {
 
     moveUserToRoom(user: User, room: Room, username: string): void {
         this.removeUserFromRoom(user);
-        user.setRoom(room, username);
-        room.addUser(user);
+        user.setRoom(room);
+        room.addUser(user, username);
     }
 
     removeUserFromRoom(user: User): void {
         const room = user.getRoom();
         if (room) {
-            room.removeUser(user);
             user.setRoom(undefined);
+            room.removeUser(user);
         }
     }
 
@@ -50,9 +50,10 @@ class RoomManager {
             return;
         }
 
-        room.forAllUsers((user: User) => {
-            this.removeUserFromRoom(user);
-        });
+        for (const userData of room.getUsers()) {
+            this.removeUserFromRoom(userData.user);
+        }
+
         const roomIndex = this.rooms.indexOf(room);
         if (roomIndex !== -1) {
             this.rooms.splice(roomIndex, 1);
@@ -69,18 +70,19 @@ class RoomManager {
         }
 
         this.moveUserToRoom(user, room, event.username || '[MISSING_VAL]');
-        serverLogger.debug(`User ${user.getShortIdentifier()} joined room ${room.getCode()} (${room.getNumUsers()} members)`);
+        serverLogger.debug(`User ${user.getShortIdentifier()} joined room ${room.getCode()} (${room.getUsers().length} members)`);
     }
 
     onUserTriesCreatingRoom(event: C2SCreateRoomEvent): void {
+        const {username} = event;
         const administrator: User = userManager.getUserById(event.userId);
         if (!administrator || administrator.getRoom()) {
             return;
         }
 
-        const room = new Room(administrator);
-        // TODO replace placeholder with something dynamic
-        administrator.setRoom(room, 'Administrator');
+        const room = new Room(administrator, username);
+        administrator.setRoom(room);
+        room.sendRoomUpdatedEvent();
         this.rooms.push(room);
         serverLogger.debug(`User ${administrator.getShortIdentifier()} created room ${room.getCode()}`);
     }

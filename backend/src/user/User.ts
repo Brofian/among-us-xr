@@ -10,7 +10,6 @@ export default class User {
 
     private socket: Socket<DefaultEventsMap, DefaultEventsMap>;
     private room?: Room = undefined;
-    private username: string = '';
     private readonly identifier: string;
 
     constructor(socket: Socket<DefaultEventsMap, DefaultEventsMap>) {
@@ -56,15 +55,21 @@ export default class User {
         socketManager.sendSocketEvent(this.socket,'S2C_USER_UPDATED', {
             userId: this.identifier,
             role: this.room ? this.room.getGameInstance().getPlayerManager().getUserRole(this) : 'unset',
-            roomCode: this.room?.getCode()
         });
+        if (!this.room) {
+            socketManager.sendSocketEvent(this.socket, 'S2C_ROOM_UPDATED', {
+                roomCode: undefined,
+                playerList: [],
+                administratorId: undefined
+            });
+        }
     }
 
     getRoom(): Room|undefined {
         return this.room;
     }
 
-    setRoom(room: Room|undefined, username: string = ''): void {
+    setRoom(room: Room|undefined): void {
         if (room === this.room) return;
 
         if (this.room !== undefined) {
@@ -74,13 +79,11 @@ export default class User {
         this.room = room;
         if (room) {
             this.socket.join(this.room.getCode());
-            this.username = username;
             this.sendUserUpdatedEvent();
         }
         else if (!this.socket.connected) {
             // if this user was removed by closing a room and is no longer connected, remove it
             eventManager.emit('S_USER_REMOVAL_TRIGGERED', {userId: this.getIdentifier()});
-            return;
         }
     }
 }

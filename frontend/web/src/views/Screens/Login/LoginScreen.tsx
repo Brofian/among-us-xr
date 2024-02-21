@@ -25,7 +25,9 @@ export default class LoginScreen extends Component<{}, IState> {
     }
 
     onUserCreateRoom(): void {
-        socketManager.sendEvent('C2S_CREATE_ROOM', {});
+        socketManager.sendEvent('C2S_CREATE_ROOM', {
+            username: this.state.username
+        });
     }
 
     render () {
@@ -60,6 +62,13 @@ export default class LoginScreen extends Component<{}, IState> {
                     <div className={'card-title'}>
                         Einen Raum erstellen
                     </div>
+
+                    <input
+                        type={'text'}
+                        onChange={(event) => this.setState({username: event.target.value})}
+                        value={this.state.username}
+                        placeholder={'Benutzername'}
+                    />
 
                     <button onClick={this.onUserCreateRoom.bind(this)}>Erstellen</button>
                 </div>

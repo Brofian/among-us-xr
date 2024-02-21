@@ -1,5 +1,6 @@
 export type GamePhases =
     'setup'
+    | 'startup'
     | 'roaming'
     | 'meeting';
 
