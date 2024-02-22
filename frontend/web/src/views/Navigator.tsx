@@ -6,6 +6,7 @@ import SetupScreen from "./Screens/Setup/SetupScreen";
 import ReRenderingComponent from "./abstract/ReRenderingComponent";
 import {CLIENT_EVENT_LIST} from "@amongusxr/types/src/Events/ClientEvents";
 import RoomHeader from "./Components/RoomHeader";
+import DebugScreen from "./Screens/Debug/DebugScreen";
 
 export default class Navigator extends ReRenderingComponent<{}, {}> {
 
@@ -14,6 +15,8 @@ export default class Navigator extends ReRenderingComponent<{}, {}> {
     }
 
     render () {
+        return <DebugScreen />;
+
         if (!gameManager.getRoomCode()) {
             return <LoginScreen />;
         }

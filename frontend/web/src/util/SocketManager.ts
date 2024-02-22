@@ -32,9 +32,13 @@ class SocketManager {
             transports: ['websocket']
         });
 
+
         this.socket.on('connect', this.onConnectionStatusChanged.bind(this, true));
         this.socket.on('disconnect', this.onDisconnected.bind(this));
-        this.socket.on('connect_error',this.onConnectionStatusChanged.bind(this, false));
+        this.socket.on('connect_error',(err) => {
+            console.log(err);
+            this.onConnectionStatusChanged(false);
+        });
         this.socket.io.on('reconnect', this.onReconnected.bind(this));
         this.socket.on(PACKAGE_EVENT_KEY, this.onSocketPackageReceived.bind(this))
     }

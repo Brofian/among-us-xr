@@ -90,6 +90,7 @@ export default class PlayerManager {
 
             if (isImposter) {
                 // send imposter data
+                // TODO implement placeholders
                 socketManager.sendSocketEvent(user.getSocket(), 'S2C_IMPOSTER_GAME_UPDATE', {
                     killTimeout: 10, // TODO make configurable
                     hazards: [],
@@ -98,6 +99,7 @@ export default class PlayerManager {
             }
             else {
                 // send crewmate data
+                // TODO implement tasks placeholder
                 socketManager.sendSocketEvent(user.getSocket(), 'S2C_CREWMATE_GAME_UPDATE', {
                     tasks: []
                 });

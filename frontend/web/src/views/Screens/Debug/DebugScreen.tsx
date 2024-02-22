@@ -1,6 +1,8 @@
 import {Component} from "react";
 import gpsHelper from "../../../util/GpsHelper";
 import eventManager from "../../../util/EventManager";
+import DefaultMap from "../../Components/DefaultMap";
+import {renderToStaticMarkup} from "react-dom/server";
 
 
 export default class DebugScreen extends Component<{}, {}> {
@@ -19,8 +21,14 @@ export default class DebugScreen extends Component<{}, {}> {
     }
 
     render () {
+
         return (
-            <div id={'debugScreen'}>
+            <div id={'debugScreen'} style={{
+                width: '100%',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+            }}>
 
                 Latitude: {gpsHelper.getLocation().latitude}
                 <br/>
@@ -29,6 +37,46 @@ export default class DebugScreen extends Component<{}, {}> {
                 Heading: {gpsHelper.getHeading()}
                 <br/>
                 Changed: {(new Date()).getTime()}
+
+                <DefaultMap
+                    center={[
+                        gpsHelper.getLocation().latitude,
+                        gpsHelper.getLocation().longitude,
+                    ]}
+                    markers={[
+                        {   position: [
+                                gpsHelper.getLocation().latitude,
+                                gpsHelper.getLocation().longitude,
+                            ],
+                            label: 'Fabian',
+                            icon: "crewmate_cyan"
+                        },
+                        {   position: [
+                                gpsHelper.getLocation().latitude,
+                                gpsHelper.getLocation().longitude + 0.0003,
+                            ],
+                            icon: "crewmate_red"
+                        },
+                        {   position: [
+                                gpsHelper.getLocation().latitude,
+                                gpsHelper.getLocation().longitude - 0.0003,
+                            ],
+                            icon: "crewmate_green"
+                        },
+                        {   position: [
+                                gpsHelper.getLocation().latitude - 0.00015,
+                                gpsHelper.getLocation().longitude - 0.00015,
+                            ],
+                            icon: "crewmate_yellow"
+                        },
+                        {   position: [
+                                gpsHelper.getLocation().latitude - 0.00015,
+                                gpsHelper.getLocation().longitude + 0.00015,
+                            ],
+                            icon: "crewmate_pink"
+                        }
+                    ]}
+                />
 
             </div>
         );

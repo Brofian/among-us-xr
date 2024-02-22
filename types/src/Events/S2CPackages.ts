@@ -1,5 +1,5 @@
 import {PlayerList, UserRoles} from "../User";
-import {GamePhases} from "../Game/DataTypes";
+import {GamePhases, PlayerTask} from "../Game/DataTypes";
 
 export type S2C_EVENT_LIST = {
     S2C_PING: S2CPingEvent,
@@ -48,7 +48,7 @@ export type S2CImposterGameUpdate = {
 } & S2CEvent;
 
 export type S2CCrewmateGameUpdate = {
-    tasks: [], // TODO implement
+    tasks: PlayerTask[], // TODO implement
 } & S2CEvent;
 
 export type S2CRoomNotFoundEvent = {} & S2CEvent;

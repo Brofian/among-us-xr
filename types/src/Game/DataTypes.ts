@@ -1,3 +1,5 @@
+import {Task} from "./PointsOfInterest";
+
 export type GamePhases =
     'setup'
     | 'startup'
@@ -8,3 +10,7 @@ export type Coordinate = {
     latitude: number,
     longitude: number,
 }
+
+export type PlayerTask = {
+    isReachable: boolean;
+} & Task;
