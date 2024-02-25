@@ -11,6 +11,11 @@ class ConfigurationManager {
     private taskSpots: Task[] = [];
 
     private constructor() {
+        eventManager.on('C_ROOM_UPDATED', (event) => {
+            if (!event.roomCode) {
+                this.reset();
+            }
+        })
         /*
         const myPos = gpsHelper.getLocation();
         this.setMeetingRoom('Cafeteria', myPos);
@@ -36,6 +41,11 @@ class ConfigurationManager {
             this.instance = new ConfigurationManager();
         }
         return this.instance;
+    }
+
+    reset(): void {
+        this.meetingRoom = undefined;
+        this.taskSpots = [];
     }
 
     setMeetingRoom(name: string, position: Coordinate): void {

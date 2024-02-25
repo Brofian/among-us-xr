@@ -19,7 +19,9 @@ export type ConnectionStatusChangedCEvent = {
 
 export type UserUpdatedCEvent = {} & Event;
 
-export type RoomUpdatedCEvent = {} & Event;
+export type RoomUpdatedCEvent = {
+    roomCode: string|undefined
+} & Event;
 
 export type GameUpdatedCEvent = {} & Event;
 

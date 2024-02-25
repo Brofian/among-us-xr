@@ -43,6 +43,28 @@ export default class LoadTemplate extends Component<{}, IState>{
         configurationManager.setTasks(template.taskSpots);
     }
 
+    static  onSaveAsTemplate(): void {
+        const existingTemplates = localStorageAdapter.getItem<SavedTemplates>(TEMPLATE_KEY) || [];
+        const templateName = prompt('Gib einen Namen für das Template an', 'Template_' + (existingTemplates.length || 0));
+        if (!templateName) {
+            return;
+        }
+
+        // if there is already a configuration with this name, remove it first
+        const duplicateTemplateIndex = existingTemplates.find(t => t.label === templateName);
+        if (duplicateTemplateIndex) {
+            duplicateTemplateIndex.configuration = configurationManager.getConfiguration();
+        }
+        else {
+            existingTemplates.push({
+                label: templateName,
+                configuration: configurationManager.getConfiguration()
+            });
+        }
+
+        localStorageAdapter.setItem(TEMPLATE_KEY, existingTemplates);
+    }
+
     render() {
         const savedTemplates = localStorageAdapter.getItem<SavedTemplates>(TEMPLATE_KEY) || [];
 

@@ -5,11 +5,14 @@ import configurationManager from "../../../game/ConfigurationManager";
 import localStorageAdapter from "../../../util/LocalStorageAdapter";
 import gpsHelper from "../../../util/GpsHelper";
 import GameManager from "../../../game/GameManager";
+import DefaultMap, {MarkerDef} from "../../Components/DefaultMap";
+import GpsHelper from "../../../util/GpsHelper";
+import {Coordinate} from "@amongusxr/types/src/Game/DataTypes";
 
 export default class SetupScreen extends ReRenderingComponent<{}, {}> {
 
     getAutoUpdateEvents(): (keyof CLIENT_EVENT_LIST)[] {
-        return ['C_CONFIGURATION_CHANGED'];
+        return ['C_CONFIGURATION_CHANGED','C_GPS_LOCATION_CHANGED'];
     }
 
     onMeetingPointUpdate(): void {
@@ -22,7 +25,7 @@ export default class SetupScreen extends ReRenderingComponent<{}, {}> {
         }
     }
 
-    onCreateTask(): void {
+    onCreateTask(coords?: Coordinate): void {
         let name: string|null = null;
         do {
             if (name !== null) {
@@ -44,40 +47,43 @@ export default class SetupScreen extends ReRenderingComponent<{}, {}> {
 
         configurationManager.addTask(
             name,
-            gpsHelper.getLocation(),
+            coords || gpsHelper.getLocation(),
             duration,
         );
-    }
-
-    onSaveAsTemplate(): void {
-        const existingTemplates = localStorageAdapter.getItem<SavedTemplates>(TEMPLATE_KEY) || [];
-        const templateName = prompt('Gib einen Namen für das Template an', 'Template_' + (existingTemplates.length || 0));
-        if (!templateName) {
-            return;
-        }
-
-        // if there is already a configuration with this name, remove it first
-        const duplicateTemplateIndex = existingTemplates.find(t => t.label === templateName);
-        if (duplicateTemplateIndex) {
-            duplicateTemplateIndex.configuration = configurationManager.getConfiguration();
-        }
-        else {
-            existingTemplates.push({
-                label: templateName,
-                configuration: configurationManager.getConfiguration()
-            });
-        }
-
-        localStorageAdapter.setItem(TEMPLATE_KEY, existingTemplates);
+        this.setState({});
     }
 
     render () {
         const meetingSpot = configurationManager.getMeetingRoom();
 
+        const currentMarkers: MarkerDef[] = configurationManager.getTasks().map(task => {
+            return {
+                key: task.name,
+                label: `${task.name} (${task.duration}s)`,
+                position: [task.position.latitude, task.position.longitude],
+                icon: 'task'
+            };
+        });
+        if (meetingSpot) {
+            currentMarkers.push({
+                key: '__meeting__',
+                label: meetingSpot.name,
+                position: [meetingSpot.position.latitude, meetingSpot.position.longitude]
+            });
+        }
+
         return (
             <div id={'setupScreen'} className={'screen'}>
 
                 <LoadTemplate/>
+
+                <DefaultMap
+                    center={GpsHelper.getLocationTuple()}
+                    zoom={[13,20]}
+                    movable={true}
+                    markers={currentMarkers}
+                    onClick={this.onCreateTask.bind(this)}
+                />
 
                 <h3>Treffpunkt</h3>
                 <div className={'list-item'} onClick={this.onMeetingPointUpdate.bind(this)}>
@@ -100,15 +106,15 @@ export default class SetupScreen extends ReRenderingComponent<{}, {}> {
 
                 <div
                     className={'list-item'}
-                    onClick={this.onCreateTask.bind(this)}
+                    onClick={this.onCreateTask.bind(this, undefined)}
                 >
                     Task hinzufügen
                 </div>
 
                 <h3>Spieler</h3>
 
-                {GameManager.getPlayerList().map(player =>
-                    <div className={'list-item'}>
+                {GameManager.getPlayerList().map((player, index) =>
+                    <div key={index} className={'list-item'}>
                         {player.username}
                     </div>
                 )}
@@ -117,7 +123,7 @@ export default class SetupScreen extends ReRenderingComponent<{}, {}> {
                 <div>
                     <button
                         disabled={!configurationManager.isValidConfiguration()}
-                        onClick={this.onSaveAsTemplate.bind(this)}
+                        onClick={LoadTemplate.onSaveAsTemplate.bind(this)}
                     >
                         Speichere als Template
                     </button>

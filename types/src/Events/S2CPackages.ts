@@ -43,6 +43,7 @@ export type S2CUniversalPlayerGameUpdate = {
 
 export type S2CImposterGameUpdate = {
     killTimeout: number;
+    tasks: PlayerTask[]; // todo implement
     hazards: []; // TODO implement
     doors: []; // TODO implement
 } & S2CEvent;

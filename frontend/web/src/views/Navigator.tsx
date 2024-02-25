@@ -15,7 +15,7 @@ export default class Navigator extends ReRenderingComponent<{}, {}> {
     }
 
     render () {
-        return <DebugScreen />;
+        // return <DebugScreen />;
 
         if (!gameManager.getRoomCode()) {
             return <LoginScreen />;

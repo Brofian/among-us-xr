@@ -28,8 +28,9 @@ export default class GameInstance {
         this.phase = 'startup';
         // TODO make this configurable
         this.playerManager.selectImposters(1);
+        this.playerManager.assignTasks(3, configuration.taskSpots);
         this.playerManager.sendGameUpdate();
-        this.playerManager.sendPlayerGameUpdates(true);
+        this.playerManager.sendAllPlayerGameUpdates(true);
 
         setTimeout(() => {
             this.phase = 'roaming';

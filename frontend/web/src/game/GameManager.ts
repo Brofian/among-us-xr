@@ -43,7 +43,9 @@ class GameManager {
         this.roomCode = roomCode;
         this.roomAdminId = administratorId;
         this.playerList = playerList;
-        eventManager.emit("C_ROOM_UPDATED", {});
+        eventManager.emit("C_ROOM_UPDATED", {
+            roomCode: roomCode
+        });
     }
 
     onGameUpdated(event: S2CGameUpdatedEvent): void {

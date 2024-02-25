@@ -38,11 +38,10 @@ export default class DebugScreen extends Component<{}, {}> {
                 <br/>
                 Changed: {(new Date()).getTime()}
 
-                <DefaultMap
-                    center={[
-                        gpsHelper.getLocation().latitude,
-                        gpsHelper.getLocation().longitude,
-                    ]}
+{/*                <DefaultMap
+                    center={gpsHelper.getLocationTuple()}
+                    movable={true}
+                    zoom={[13,18]}
                     markers={[
                         {   position: [
                                 gpsHelper.getLocation().latitude,
@@ -76,7 +75,7 @@ export default class DebugScreen extends Component<{}, {}> {
                             icon: "crewmate_pink"
                         }
                     ]}
-                />
+                />*/}
 
             </div>
         );

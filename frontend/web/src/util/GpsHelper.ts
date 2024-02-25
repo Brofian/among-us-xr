@@ -94,6 +94,10 @@ class GpsHelper {
         return this.location;
     }
 
+    getLocationTuple(): [number,number] {
+        return [this.location.latitude, this.location.longitude];
+    }
+
 
 }
 
