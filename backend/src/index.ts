@@ -1,20 +1,17 @@
-'use strict';
+import express from 'express';
 import {Server} from 'socket.io';
 import serverConfiguration from './util/ServerConfiguration';
 import Controller from "./Controller";
+import * as http from "node:http";
 
-const BACKEND_PORT: number = serverConfiguration.API_HTTP_PORT; // 5000
-const FRONTEND_PORT: number = serverConfiguration.REACT_HTTP_PORT; // 3000
-const FRONTEND_DOMAIN: string = serverConfiguration.REACT_APP_DOMAIN; // https://localhost
+const backendPort: number = serverConfiguration.BACKEND_PORT; // 5000
 
-const io = new Server(BACKEND_PORT, {
-	cors: {
-		origin: `${FRONTEND_DOMAIN}:${FRONTEND_PORT}`,
-	},
-});
-
-io.on('connect', () => {/*...*/});
-
+// Create an Express application
+const app = express();
+const server = http.createServer(app);
+const io = new Server(server);
 const controller = new Controller(io);
+io.on('connection', controller.onConnect.bind(controller));
+io.listen(backendPort);
 
-console.log(`Server is now listening to port ${BACKEND_PORT} and can be accessed from ${FRONTEND_DOMAIN}:${FRONTEND_PORT}`);
+console.log(`Server is now listening to port ${backendPort}`);

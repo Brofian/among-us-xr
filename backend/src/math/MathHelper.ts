@@ -6,8 +6,8 @@ export default class MathHelper {
      * @param min
      * @param max
      */
-    static randomInt(min: number = 0, max: number = null): number {
-        if (min !== 0 && max === null) {
+    static randomInt(min: number = 0, max: number|undefined = undefined): number {
+        if (min !== 0 && max === undefined) {
             max = min;
             min = 0;
         }
